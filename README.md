@@ -12,7 +12,7 @@
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [PlatformIO](https://platformio.org/)
   - [VSCodeのExtentions](https://docs.platformio.org/en/latest/ide/vscode.html)として
-ｰ [Arduino core for ESP32 WiFi chip](https://github.com/espressif/arduino-esp32)
+- [Arduino core for ESP32 WiFi chip](https://github.com/espressif/arduino-esp32)
   - [Get started with Arduino and ESP32-DevKitC: debugging and unit testing](https://docs.platformio.org/en/latest/tutorials/espressif32/arduino_debugging_unit_testing.html#tutorial-espressif32-arduino-debugging-unit-testing)
 - 自作MH-Z14Aライブラリ
   ｰ HardwareSerialから読み取る版

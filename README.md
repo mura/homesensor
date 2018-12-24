@@ -15,7 +15,7 @@
 - [Arduino core for ESP32 WiFi chip](https://github.com/espressif/arduino-esp32)
   - [Get started with Arduino and ESP32-DevKitC: debugging and unit testing](https://docs.platformio.org/en/latest/tutorials/espressif32/arduino_debugging_unit_testing.html#tutorial-espressif32-arduino-debugging-unit-testing)
 - 自作MH-Z14Aライブラリ
-  ｰ HardwareSerialから読み取る版
+  - HardwareSerialから読み取る版
   - [MH-Z-CO2-Sensors](https://github.com/tobiasschuerg/MH-Z-CO2-Sensors)をかなり参考にした
 - [DHTesp](https://github.com/beegee-tokyo/DHTesp)
 - [Blynk C++ Library](https://github.com/blynkkk/blynk-library)

@@ -15,6 +15,7 @@ CloudIoTCoreDevice device(project_id, location, registry_id, device_id, private_
 CloudIoTCoreMQTTClient client(&device);
 
 long lastMsg = 0;
+long lastGcpMsg = 0;
 
 /** Pin number for DHT11 data pin */
 const int dhtPin = 4;
@@ -48,6 +49,15 @@ void notifyCO2(int val) {
   } else if (val < 2000) {
     notified = false;
   }
+}
+
+void publish(int co2, TempAndHumidity lastValues) {
+  String payload = String("{\"co2\":") + String(co2)
+        + String(",\"temperature\":") + String(lastValues.temperature)
+        + String(",\"humidity\":") + String(lastValues.humidity)
+        + String("}");
+  //Serial.printf("Payload: %s\n", payload.c_str());
+  client.publishTelemetry(payload);
 }
 
 void setup() {
@@ -107,13 +117,13 @@ void loop() {
     Blynk.virtualWrite(V1, lastValues.temperature);
     Blynk.virtualWrite(V2, lastValues.humidity);
 
-    String payload = String("{\"co2\":") + String(co2)
-        + String(",\"temperature\":") + String(lastValues.temperature)
-        + String(",\"humidity\":") + String(lastValues.humidity)
-        + String("}");
-    Serial.printf("Payload: %s\n", payload.c_str());
+    if (now - lastGcpMsg < 60000) {
+      return;
+    }
+
+    lastGcpMsg = now;
     if (lastState == 0) {
-      client.publishTelemetry(payload);
+      publish(co2, lastValues);
     }
   }
 }

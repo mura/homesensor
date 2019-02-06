@@ -7,10 +7,9 @@ const int STATUS_CHECKSUM_MISMATCH = -3;
 const int STATUS_INCOMPLETE = -4;
 const int STATUS_NOT_READY = -5;
 
-unsigned long lastRequest = 0;
+uint32_t lastRequest = 0;
 
-MHZ14A::MHZ14A(int uart_nr): co2Serial(uart_nr) {
-  
+MHZ14A::MHZ14A(int uart_nr): co2Serial(uart_nr) { 
 }
 
 void MHZ14A::setup() {
@@ -26,9 +25,9 @@ bool MHZ14A::isReady() {
   return lastRequest < millis() - MHZ14A_RESPONSE_TIME;
 }
 
-int MHZ14A::readGas() {
-  const byte cmd[9] = { 0xff, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79 };
-  const int len = 9;
+int16_t MHZ14A::readGas() {
+  const uint8_t cmd[9] = {0xff, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+  const size_t len = 9;
   co2Serial.write(cmd, len);
   lastRequest = millis();
 
@@ -45,14 +44,14 @@ int MHZ14A::readGas() {
     co2Serial.read();
   }
 
-  byte value[9];
+  uint8_t value[9];
   memset(value, 0, len);
   for (int i = 0; i < len; i++) {
     value[i] = co2Serial.read();
   }
 
   // convert value
-  int val = convertResponseToInt(value);
+  int16_t val = convertResponseToInt(value);
   //Serial.printf("CO2: %d ppm\n", val) ;
 
   co2Serial.flush();
@@ -60,21 +59,21 @@ int MHZ14A::readGas() {
 }
 
 void MHZ14A::calibrateZeroPoint() {
-  const byte cmd[9] =  { 0xff, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78 };
-  const int len = 9;
+  const uint8_t cmd[9] = {0xff, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
+  const size_t len = 9;
   co2Serial.write(cmd, len);
   co2Serial.flush();
   Serial.println("calibration!");
 }
 
-int MHZ14A::convertResponseToInt(byte value[9]) {
+int16_t MHZ14A::convertResponseToInt(uint8_t value[9]) {
   // check command
   if (value[0] != 0xff || value[1] != 0x86) {
     return STATUS_CHECKSUM_MISMATCH;
   }
   
   // checksum
-  char checksum = 0;
+  uint8_t checksum = 0;
   for (int i = 1; i < 8; i++) {
     checksum += (char)value[i];
   }
@@ -85,5 +84,5 @@ int MHZ14A::convertResponseToInt(byte value[9]) {
   }
 
   // read value
-  return value[2] * 256 + value[3];
+  return value[2] << 8 + value[3];
 }

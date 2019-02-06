@@ -10,12 +10,14 @@
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
 
-
 CloudIoTCoreDevice device(project_id, location, registry_id, device_id, private_key_str);
 CloudIoTCoreMQTTClient client(&device);
 
-long lastMsg = 0;
-long lastGcpMsg = 0;
+const uint32_t BLYNK_INTERVAL = 10000;
+const uint32_t GCP_INTERVAL = 60000;
+
+uint32_t lastMsg = 0;
+uint32_t lastGcpMsg = 0;
 
 /** Pin number for DHT11 data pin */
 const int dhtPin = 4;
@@ -28,11 +30,11 @@ TaskHandle_t tempTaskHandle = NULL;
 MHZ14A co2sensor(2);
 
 // notification
-bool notified = false;
+int16_t co2Threshold = 2000;
 // error
 bool hasError = false;
 
-void notifyCO2(int val) {
+void notifyCO2(int16_t val) {
   // send to Blynk
   if (val < 0 && !hasError) {
     Blynk.notify("CO2濃度が取れませんでした！");
@@ -43,11 +45,11 @@ void notifyCO2(int val) {
   }
 
   // notify
-  if (val >= 2000 && !notified) {
+  if (val >= co2Threshold) {
     Blynk.notify(String(val) + "ppm を超えたので換気しよう！");
-    notified = true;
+    co2Threshold += 500;
   } else if (val < 2000) {
-    notified = false;
+    co2Threshold = 2000;
   }
 }
 
@@ -100,15 +102,15 @@ void loop() {
     Serial.println("Error, client state: " + String(lastState));
   }
 
-  long now = millis();
-  if (now - lastMsg > 10000) {
+  uint32_t now = millis();
+  if (now - lastMsg > BLYNK_INTERVAL) {
     lastMsg = now;
 
     if (!co2sensor.isReady()) {
       return;
     }
 
-    int co2 = co2sensor.readGas();
+    int16_t co2 = co2sensor.readGas();
     //Serial.printf("CO2: %d ppm\n", co2);
     notifyCO2(co2);
 
@@ -117,7 +119,7 @@ void loop() {
     Blynk.virtualWrite(V1, lastValues.temperature);
     Blynk.virtualWrite(V2, lastValues.humidity);
 
-    if (now - lastGcpMsg < 60000) {
+    if (now - lastGcpMsg < GCP_INTERVAL) {
       return;
     }
 

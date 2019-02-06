@@ -13,12 +13,12 @@ class MHZ14A {
     bool isPreHeating();
     bool isReady();
 
-    int readGas();
+    int16_t readGas();
     void calibrateZeroPoint();
   private:
     HardwareSerial co2Serial;
 
-    int convertResponseToInt(byte value[9]);
+    int16_t convertResponseToInt(uint8_t value[9]);
 };
 
 #endif

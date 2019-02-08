@@ -84,5 +84,5 @@ int16_t MHZ14A::convertResponseToInt(uint8_t value[9]) {
   }
 
   // read value
-  return value[2] << 8 + value[3];
+  return (value[2] << 8) | value[3];
 }

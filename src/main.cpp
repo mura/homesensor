@@ -1,4 +1,3 @@
-#define ESP32
 #include <Arduino.h>
 #include <DHTesp.h>
 #include "MHZ14A.h"
@@ -31,6 +30,7 @@ MHZ14A co2sensor(2);
 
 // notification
 int16_t co2Threshold = 2000;
+const int16_t co2NotifyStep = 500;
 // error
 bool hasError = false;
 
@@ -47,8 +47,9 @@ void notifyCO2(int16_t val) {
   // notify
   if (val >= co2Threshold) {
     Blynk.notify(String(val) + "ppm を超えたので換気しよう！");
-    co2Threshold += 500;
-  } else if (val < 2000) {
+    co2Threshold = co2NotifyStep * ((int)(val / co2NotifyStep) + 1);
+    Serial.printf("co2Threshold = %d\n", co2Threshold);
+  } else if (val < 2000 && co2Threshold > 2000) {
     co2Threshold = 2000;
   }
 }

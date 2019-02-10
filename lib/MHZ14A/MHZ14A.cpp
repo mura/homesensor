@@ -1,4 +1,5 @@
 #include "MHZ14A.h"
+#include <Arduino.h>
 
 const int MHZ14A_RESPONSE_TIME = 60;
 

@@ -1,7 +1,6 @@
 #ifndef MHZ14A_H
 #define MHZ14A_H
 
-#include <Arduino.h>
 #include <HardwareSerial.h>
 
 class MHZ14A {

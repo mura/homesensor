@@ -1,6 +1,7 @@
 #include <Arduino.h>
-#include <DHTesp.h>
 #include "MHZ14A.h"
+#include "I2cBme280.h"
+#include <Wire.h>
 #include <CloudIoTCore.h>
 #include <CloudIoTCoreMQTTClient.h>
 #include <WiFi.h>
@@ -18,12 +19,8 @@ const uint32_t GCP_INTERVAL = 60000;
 uint32_t lastMsg = 0;
 uint32_t lastGcpMsg = 0;
 
-/** Pin number for DHT11 data pin */
-const int dhtPin = 4;
-/** Initialize DHT sensor */
-DHTesp dht;
-/** Task handle for the light value read task */
-TaskHandle_t tempTaskHandle = NULL;
+/** Initialize BME280 sensor */
+I2cBme280 bme280;
 
 // Initialize CO2 Sensor
 MHZ14A co2sensor(2);
@@ -36,7 +33,7 @@ bool hasError = false;
 
 void notifyCO2(int16_t val) {
   // send to Blynk
-  if (val < 0 && !hasError) {
+  if (val <= 0 && !hasError) {
     Blynk.notify("CO2濃度が取れませんでした！");
     hasError = true;
   } else if (val > 0) {
@@ -54,10 +51,11 @@ void notifyCO2(int16_t val) {
   }
 }
 
-void publish(int co2, TempAndHumidity lastValues) {
+void publish(int co2) {
   String payload = String("{\"co2\":") + String(co2)
-        + String(",\"temperature\":") + String(lastValues.temperature)
-        + String(",\"humidity\":") + String(lastValues.humidity)
+        + String(",\"temperature\":") + String(bme280.getTemperature())
+        + String(",\"humidity\":") + String(bme280.getHumidity())
+        + String(",\"pressure\":") + String(bme280.getPressure() / 100.0)
         + String("}");
   //Serial.printf("Payload: %s\n", payload.c_str());
   client.publishTelemetry(payload);
@@ -67,8 +65,9 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
-  // Initialize temperature sensor
-  dht.setup(dhtPin, DHTesp::DHT11);
+  // Initialize bme280 sensor
+  Wire.begin();
+  bme280.init();
 
   // Initialize CO2 Sensor
   co2sensor.setup();
@@ -107,26 +106,26 @@ void loop() {
   if (now - lastMsg > BLYNK_INTERVAL) {
     lastMsg = now;
 
-    if (!co2sensor.isReady()) {
-      return;
-    }
+    bool co2Ready = co2sensor.isReady();
 
     int16_t co2 = co2sensor.readGas();
     //Serial.printf("CO2: %d ppm\n", co2);
     notifyCO2(co2);
 
-    TempAndHumidity lastValues = dht.getTempAndHumidity();
-    //Serial.printf("Temp: %.1f C, Humidity: %.1f %%\n", lastValues.temperature, lastValues.humidity) ;
-    Blynk.virtualWrite(V1, lastValues.temperature);
-    Blynk.virtualWrite(V2, lastValues.humidity);
+    int8_t result = bme280.getSensorData(BME280_ALL);
+    if (result == BME280_OK) {
+      Blynk.virtualWrite(V1, bme280.getTemperature());
+      Blynk.virtualWrite(V2, bme280.getHumidity());
+      Blynk.virtualWrite(V3, bme280.getPressure() / 100.0);
+    }
 
     if (now - lastGcpMsg < GCP_INTERVAL) {
       return;
     }
 
     lastGcpMsg = now;
-    if (lastState == 0) {
-      publish(co2, lastValues);
+    if (lastState == 0 && co2Ready && result == BME280_OK) {
+      publish(co2);
     }
   }
 }

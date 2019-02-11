@@ -4,7 +4,9 @@
 ## 使用しているHardware
 - ESP32 Dev Kit
 - MH-Z14A (CO2センサー)
-- DHT11 (温度湿度センサー)
+- BME280 (温度湿度気圧センサー)
+
+## 使用しているPaaS
 - [Blynk](https://blynk.cc) (IoTお手軽アプリ化フレームワーク)
 - [Google Cloud IoT Core](https://cloud.google.com/iot-core/) (クラウドIoT基盤)
 
@@ -17,6 +19,6 @@
 - 自作MH-Z14Aライブラリ
   - HardwareSerialから読み取る版
   - [MH-Z-CO2-Sensors](https://github.com/tobiasschuerg/MH-Z-CO2-Sensors)をかなり参考にした
-- [DHTesp](https://github.com/beegee-tokyo/DHTesp)
+- [Bosch Sensortec BME280 sensor driver](https://github.com/BoschSensortec/BME280_driver)
 - [Blynk C++ Library](https://github.com/blynkkk/blynk-library)
 - [Google Cloud IoT JWT](https://github.com/GoogleCloudPlatform/google-cloud-iot-arduino)

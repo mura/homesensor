@@ -3,21 +3,23 @@
 
 #include <HardwareSerial.h>
 
-class MHZ14A {
-  public:
-    MHZ14A(int uart_nr);
+class MHZ14A
+{
+public:
+  MHZ14A(int uart_nr);
 
-    void setup();
+  void setup();
 
-    bool isPreHeating();
-    bool isReady();
+  bool isPreHeating();
+  bool isReady();
 
-    int16_t readGas();
-    void calibrateZeroPoint();
-  private:
-    HardwareSerial co2Serial;
+  int16_t readGas();
+  void calibrateZeroPoint();
 
-    int16_t convertResponseToInt(uint8_t value[9]);
+private:
+  HardwareSerial co2Serial;
+
+  int16_t convertResponseToInt(uint8_t value[9]);
 };
 
 #endif

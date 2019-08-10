@@ -2,16 +2,8 @@
 #include "MHZ14A.h"
 #include "I2cBme280.h"
 #include <Wire.h>
-#include <CloudIoTCore.h>
-#include <CloudIoTCoreMQTTClient.h>
-#include <WiFi.h>
-#include "ciotc_config.h"
-#include <time.h>
-#include <WiFiClient.h>
+#include "esp32-mqtt.h"
 #include <BlynkSimpleEsp32.h>
-
-CloudIoTCoreDevice device(project_id, location, registry_id, device_id, private_key_str);
-CloudIoTCoreMQTTClient client(&device);
 
 const uint32_t BLYNK_INTERVAL = 10000;
 const uint32_t GCP_INTERVAL = 60000;
@@ -66,7 +58,7 @@ void publish(int co2)
                    String(",\"pressure\":") + String(bme280.getPressure() / 100.0) +
                    String("}");
   //Serial.printf("Payload: %s\n", payload.c_str());
-  client.publishTelemetry(payload);
+  publishTelemetry(payload);
 }
 
 void setup()
@@ -81,37 +73,21 @@ void setup()
   // Initialize CO2 Sensor
   co2sensor.setup();
 
-  // connect to WiFi&Blynk
-  Blynk.begin(blynk_token, ssid, password);
+  // connect to WiFi&Google Cloud
+  setupCloudIoT();
 
-  configTime(0, 0, "ntp.nict.jp", "ntp.jst.mfeed.ad.jp");
-  Serial.print("Waiting on time sync... ");
-  while (time(nullptr) < 1510644967)
-  {
-    delay(10);
-  }
-
-  struct tm timeInfo;
-  getLocalTime(&timeInfo);
-  Serial.printf("%04d/%02d/%02d %02d:%02d:%02d\n",
-                timeInfo.tm_year + 1900, timeInfo.tm_mon + 1, timeInfo.tm_mday,
-                timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
-
-  Serial.println("Connecting to mqtt.googleapis.com");
-  //client.debugEnable(true);
-  client.connectSecure(root_cert);
-  // client.setConfigCallback(callback);
+  // connect to Blynk
+  Blynk.config(blynk_token);
 }
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
   Blynk.run();
-  int lastState = client.loop();
+  mqttClient->loop();
+  delay(10);  // <- fixes some issues with WiFi stability
 
-  if (lastState != 0)
-  {
-    Serial.println("Error, client state: " + String(lastState));
+  if (!mqttClient->connected()) {
+    connect();
   }
 
   uint32_t now = millis();
@@ -139,7 +115,7 @@ void loop()
     }
 
     lastGcpMsg = now;
-    if (lastState == 0 && co2Ready && result == BME280_OK)
+    if (co2Ready && result == BME280_OK)
     {
       publish(co2);
     }

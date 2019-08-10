@@ -67,7 +67,8 @@ void setup()
 
   // Initialize bme280 sensor
   Wire.begin();
-  bme280.init();
+  int result = bme280.init();
+  //Serial.printf("init: %d\n", result);
 
   // Initialize CO2 Sensor
   co2sensor.setup();
@@ -102,11 +103,15 @@ void loop()
     notifyCO2(co2);
 
     int8_t result = bme280.getSensorData(BME280_ALL);
+    //Serial.printf("result: %d\n", result);
     if (result == BME280_OK)
     {
       Blynk.virtualWrite(V1, bme280.getTemperature());
+      //Serial.printf("Temp: %f\n", bme280.getTemperature());
       Blynk.virtualWrite(V2, bme280.getHumidity());
+      //Serial.printf("Humi: %f\n", bme280.getHumidity());
       Blynk.virtualWrite(V3, bme280.getPressure() / 100.0);
+      //Serial.printf("Pres: %f\n", bme280.getPressure() / 100.0);
     }
 
     if (now - lastGcpMsg < GCP_INTERVAL)

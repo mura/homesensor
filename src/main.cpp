@@ -63,7 +63,6 @@ void publish(int co2)
 
 void setup()
 {
-  // put your setup code here, to run once:
   Serial.begin(115200);
 
   // Initialize bme280 sensor
@@ -86,7 +85,8 @@ void loop()
   mqttClient->loop();
   delay(10);  // <- fixes some issues with WiFi stability
 
-  if (!mqttClient->connected()) {
+  if (!mqttClient->connected())
+  {
     connect();
   }
 

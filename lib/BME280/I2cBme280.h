@@ -1,13 +1,15 @@
 #ifndef I2CBME280_H
 #define I2CBME280_H
 
+#define BME280_FLOAT_ENABLE
+
 #include "bme280.h"
 
 #ifdef BME280_FLOAT_ENABLE
 #define DATA_UNIT double
 #define TEMP_UNIT double
 #else
-#define DATA_UNIT unit32_t
+#define DATA_UNIT uint32_t
 #define TEMP_UNIT int32_t
 #endif
 

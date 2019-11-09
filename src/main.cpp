@@ -52,10 +52,10 @@ void notifyCO2(int16_t val)
 
 void publish(int co2)
 {
-  String payload = String("{\"co2\":") + String(co2) +
-                   String(",\"temperature\":") + String(bme280.getTemperature()) +
-                   String(",\"humidity\":") + String(bme280.getHumidity()) +
-                   String(",\"pressure\":") + String(bme280.getPressure() / 100.0) +
+  String payload = String("{\"c\":") + String(co2) +
+                   String(",\"t\":") + String(bme280.getTemperature()) +
+                   String(",\"h\":") + String(bme280.getHumidity()) +
+                   String(",\"p\":") + String(bme280.getPressure() / 100.0) +
                    String("}");
   //Serial.printf("Payload: %s\n", payload.c_str());
   publishTelemetry(payload);

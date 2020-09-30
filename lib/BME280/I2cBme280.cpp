@@ -4,11 +4,10 @@
 
 I2cBme280::I2cBme280(/* args */)
 {
-  dev.dev_id = BME280_I2C_ADDR_PRIM;
   dev.intf = BME280_I2C_INTF;
   dev.read = read;
   dev.write = write;
-  dev.delay_ms = delay_ms;
+  dev.delay_us = delay_us;
   /* Recommended mode of operation: Indoor navigation */
   dev.settings.osr_h = BME280_OVERSAMPLING_1X;
   dev.settings.osr_p = BME280_OVERSAMPLING_16X;
@@ -69,17 +68,17 @@ int8_t I2cBme280::softReset()
   return bme280_soft_reset(&dev);
 }
 
-void I2cBme280::delay_ms(uint32_t period)
+void I2cBme280::delay_us(uint32_t period, void *intf_ptr)
 {
-  delay(period);
+  delayMicroseconds(period);
 }
 
-int8_t I2cBme280::read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t I2cBme280::read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr)
 {
   int8_t rslt = 0; /* Return 0 for Success, non-zero for failure */
 
   /*
-   * The parameter dev_id can be used as a variable to store the I2C address of the device
+   * The parameter intf_ptr can be used as a variable to store the I2C address of the device
    */
 
   /*
@@ -97,10 +96,11 @@ int8_t I2cBme280::read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint
    * | Stop       | -                   |
    * |------------+---------------------|
    */
-  Wire.beginTransmission(dev_id);
+  uint8_t dev_addr = BME280_I2C_ADDR_PRIM;
+  Wire.beginTransmission(dev_addr);
   Wire.write(reg_addr);
   Wire.endTransmission();
-  rslt = Wire.requestFrom(dev_id, (uint8_t)len);
+  rslt = Wire.requestFrom(dev_addr, (uint8_t)len);
   if (rslt == 0)
   {
     return 1;
@@ -114,12 +114,12 @@ int8_t I2cBme280::read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint
   return BME280_OK;
 }
 
-int8_t I2cBme280::write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t I2cBme280::write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr)
 {
   int8_t rslt = 0; /* Return 0 for Success, non-zero for failure */
 
   /*
-   * The parameter dev_id can be used as a variable to store the I2C address of the device
+   * The parameter intf_ptr can be used as a variable to store the I2C address of the device
    */
 
   /*
@@ -138,7 +138,8 @@ int8_t I2cBme280::write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uin
    * | Stop       | -                    |
    * |------------+----------------------|
    */
-  Wire.beginTransmission(dev_id);
+  uint8_t dev_addr = BME280_I2C_ADDR_PRIM;
+  Wire.beginTransmission(dev_addr);
   for (int i = 0; i < len; i++)
   {
     Wire.write(reg_addr + i);

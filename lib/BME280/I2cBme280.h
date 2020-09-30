@@ -18,9 +18,9 @@ private:
   struct bme280_data comp_data;
   uint8_t settings_sel;
 
-  static void delay_ms(uint32_t period);
-  static int8_t read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
-  static int8_t write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
+  static void delay_us(uint32_t period, void *intf_ptr);
+  static int8_t read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr);
+  static int8_t write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr);
 
 public:
   I2cBme280(/* args */);

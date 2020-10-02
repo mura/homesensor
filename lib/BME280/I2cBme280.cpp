@@ -4,15 +4,17 @@
 
 I2cBme280::I2cBme280(/* args */)
 {
+  dev_addr = BME280_I2C_ADDR_PRIM;
+  dev.intf_ptr = &dev_addr;
   dev.intf = BME280_I2C_INTF;
   dev.read = read;
   dev.write = write;
   dev.delay_us = delay_us;
-  /* Recommended mode of operation: Indoor navigation */
+
+  dev.settings.osr_t = BME280_OVERSAMPLING_2X;
   dev.settings.osr_h = BME280_OVERSAMPLING_1X;
   dev.settings.osr_p = BME280_OVERSAMPLING_16X;
-  dev.settings.osr_t = BME280_OVERSAMPLING_2X;
-  dev.settings.filter = BME280_FILTER_COEFF_16;
+  dev.settings.filter = BME280_FILTER_COEFF_OFF;
   dev.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
 
   settings_sel = BME280_OSR_PRESS_SEL;
@@ -96,7 +98,7 @@ int8_t I2cBme280::read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *
    * | Stop       | -                   |
    * |------------+---------------------|
    */
-  uint8_t dev_addr = BME280_I2C_ADDR_PRIM;
+  uint8_t dev_addr = *(uint8_t*)intf_ptr;
   Wire.beginTransmission(dev_addr);
   Wire.write(reg_addr);
   Wire.endTransmission();
@@ -138,7 +140,7 @@ int8_t I2cBme280::write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
    * | Stop       | -                    |
    * |------------+----------------------|
    */
-  uint8_t dev_addr = BME280_I2C_ADDR_PRIM;
+  uint8_t dev_addr = *(uint8_t*)intf_ptr;
   Wire.beginTransmission(dev_addr);
   for (int i = 0; i < len; i++)
   {

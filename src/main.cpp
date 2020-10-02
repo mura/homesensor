@@ -17,6 +17,8 @@ I2cBme280 bme280;
 // Initialize CO2 Sensor
 MHZ14A co2sensor(2);
 
+// ready
+bool co2Ready = false;
 // notification
 int16_t co2Threshold = 2000;
 const int16_t co2NotifyStep = 500;
@@ -26,10 +28,13 @@ bool hasError = false;
 void notifyCO2(int16_t val)
 {
   // send to Blynk
-  if (val <= 0 && !hasError)
+  if (val <= 0)
   {
-    Blynk.notify("CO2濃度が取れませんでした！");
+    if (co2Ready && !hasError) {
+      Blynk.notify("CO2濃度が取れませんでした！");
+    }
     hasError = true;
+    return;
   }
   else if (val > 0)
   {
@@ -96,7 +101,7 @@ void loop()
   {
     lastMsg = now;
 
-    bool co2Ready = co2sensor.isReady();
+    co2Ready = co2sensor.isReady();
 
     int16_t co2 = co2sensor.readGas();
     //Serial.printf("CO2: %d ppm\n", co2);

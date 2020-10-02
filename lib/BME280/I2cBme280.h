@@ -17,6 +17,7 @@ private:
   struct bme280_dev dev;
   struct bme280_data comp_data;
   uint8_t settings_sel;
+  uint8_t dev_addr;
 
   static void delay_us(uint32_t period, void *intf_ptr);
   static int8_t read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr);

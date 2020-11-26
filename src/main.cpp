@@ -72,8 +72,7 @@ void setup()
 
   // Initialize bme280 sensor
   Wire.begin();
-  int result = bme280.init();
-  // Serial.printf("bme280.init: %d\n", result);
+  bme280.init();
 
   // Initialize CO2 Sensor
   co2sensor.setup();
@@ -111,9 +110,7 @@ void loop()
     // Serial.printf("result: %d\n", result);
     if (result == BME280_OK)
     {
-      // Serial.printf("Temp: %f\n", bme280.getTemperature());
-      // Serial.printf("Humi: %f\n", bme280.getHumidity());
-      // Serial.printf("Pres: %f\n", bme280.getPressure() / 100.0);
+      // bme280.print();
       Blynk.virtualWrite(V1, bme280.getTemperature());
       Blynk.virtualWrite(V2, bme280.getHumidity());
       Blynk.virtualWrite(V3, bme280.getPressure() / 100.0);

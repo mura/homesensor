@@ -34,14 +34,20 @@ int8_t I2cBme280::init()
   rslt = bme280_init(&dev);
   if (rslt != BME280_OK)
   {
+    Serial.printf("Failed bme280_init: %d\n", rslt);
     return rslt;
   }
   rslt = bme280_set_sensor_settings(settings_sel, &dev);
   if (rslt != BME280_OK)
   {
+    Serial.printf("Failed bme280_set_sensor_settings: %d\n", rslt);
     return rslt;
   }
   rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev);
+  if (rslt != BME280_OK)
+  {
+    Serial.printf("Failed bme280_set_sensor_mode: %d\n", rslt);
+  }
   return rslt;
 }
 
@@ -149,4 +155,15 @@ int8_t I2cBme280::write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
   }
   rslt = Wire.endTransmission();
   return rslt;
+}
+
+void I2cBme280::print() 
+{
+#ifdef BME280_FLOAT_ENABLE
+  Serial.printf("Temp: %.2f, Humi: %.2f, Pres: %.2f\n",
+                comp_data.temperature, comp_data.humidity, comp_data.temperature / 100.0);
+#else
+  Serial.printf("Temp: %.2f, Humi: %.2f, Pres: %.2f\n",
+                comp_data.temperature / 100.0, comp_data.humidity / 1024.0, comp_data.temperature / 100.0);
+#endif
 }

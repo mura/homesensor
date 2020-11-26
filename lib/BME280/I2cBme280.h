@@ -33,6 +33,7 @@ public:
   TEMP_UNIT getTemperature();
   DATA_UNIT getHumidity();
   int8_t softReset();
+  void print();
 };
 
 #endif

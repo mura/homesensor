@@ -24,7 +24,8 @@
 
 #include <CloudIoTCore.h>
 #include <CloudIoTCoreMqtt.h>
-#include "ciotc_config.h" // Update this file with your configuration
+#include "ciotc_config.h"
+#include "device_config.h"
 
 // !!REPLACEME!!
 // The MQTT callback function for commands and configuration updates
@@ -35,7 +36,7 @@ void messageReceived(String &topic, String &payload) {
 ///////////////////////////////
 
 // Initialize WiFi and MQTT for this board
-Client *netClient;
+WiFiClientSecure *netClient;
 CloudIoTCoreDevice *device;
 CloudIoTCoreMqtt *mqtt;
 MQTTClient *mqttClient;
@@ -82,37 +83,21 @@ void connectWifi() {
   }
 }
 
-///////////////////////////////
-// Orchestrates various methods from preceeding code.
-///////////////////////////////
-void publishTelemetry(String data) {
-  mqtt->publishTelemetry(data);
-}
-
-void publishTelemetry(const char* data, int length) {
-  mqtt->publishTelemetry(data, length);
-}
-
-void publishTelemetry(String subfolder, String data) {
-  mqtt->publishTelemetry(subfolder, data);
-}
-
-void publishTelemetry(String subfolder, const char* data, int length) {
-  mqtt->publishTelemetry(subfolder, data, length);
-}
-
 void connect() {
   connectWifi();
   mqtt->mqttConnect();
 }
 
-void setupCloudIoT() {
+void setupCloudIoT(const char *device_id,
+                   const char *private_key_str)
+{
   device = new CloudIoTCoreDevice(
       project_id, location, registry_id, device_id,
       private_key_str);
 
   setupWifi();
   netClient = new WiFiClientSecure();
+  netClient->setCACert(root_cert);
   mqttClient = new MQTTClient(512);
   mqttClient->setOptions(180, true, 1000); // keepAlive, cleanSession, timeout
   mqtt = new CloudIoTCoreMqtt(mqttClient, netClient, device);

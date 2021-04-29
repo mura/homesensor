@@ -12,7 +12,7 @@
   - IoTお手軽アプリ化フレームワーク
 - [Google Cloud IoT Core](https://cloud.google.com/iot-core/)
   - クラウドIoT基盤
-- [Google Cloud Functions](https://cloud.google.com/functions/)
+- [Cloud Functions for Firebase](https://firebase.google.com/docs/functions)
   - Cloud IoT CoreからのPub/Subの受け取り用
 - [Google BigQuery](https://cloud.google.com/bigquery)
   - センサーデータの保存先

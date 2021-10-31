@@ -29,14 +29,11 @@ void setup()
 
 void loop()
 {
+  checkConnection();
+
   Blynk.run();
   mqtt->loop();
   delay(10);  // <- fixes some issues with WiFi stability
-
-  if (!mqttClient->connected())
-  {
-    connect();
-  }
 
   uint32_t now = millis();
   if (now - lastMsg > BLYNK_INTERVAL)

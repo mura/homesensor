@@ -88,6 +88,12 @@ void connect() {
   mqtt->mqttConnect();
 }
 
+void checkConnection() {
+  if (WiFi.status() != WL_CONNECTED || !mqttClient->connected()) {
+    connect();
+  }
+}
+
 void setupCloudIoT(const char *device_id,
                    const char *private_key_str)
 {

@@ -1,8 +1,8 @@
+#include <device_config.h>
 #include <Arduino.h>
 #include <BlynkSimpleEsp32.h>
 #include <esp32-mqtt.h>
 #include <create_service.h>
-#include <device_config.h>
 
 const uint32_t BLYNK_INTERVAL = 10000;
 const uint32_t GCP_INTERVAL = 60000;

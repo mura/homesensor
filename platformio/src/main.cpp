@@ -1,7 +1,10 @@
+#define BLYNK_FIRMWARE_VERSION "0.0.1"
+#define BLYNK_PRINT Serial
+
 #include <device_config.h>
 #include <Arduino.h>
-#include <BlynkSimpleEsp32.h>
-#include <esp32-mqtt.h>
+#include <BlynkEdgent.h>
+#include <CloudIoT.h>
 #include <create_service.h>
 
 const uint32_t BLYNK_INTERVAL = 10000;
@@ -10,29 +13,27 @@ const uint32_t GCP_INTERVAL = 60000;
 uint32_t lastMsg = 0;
 uint32_t lastGcpMsg = 0;
 
-Service *service = create_service(&Blynk);
+Service<BlynkArduinoClientSecure<WiFiClientSecure>> *service = create_service(&Blynk);
 
 void setup()
 {
   Serial.begin(115200);
+  delay(100);
 
-  // connect to WiFi&Google Cloud
-  setupCloudIoT(device_id, private_key_str);
+  BlynkEdgent.begin();
 
-  // connect to Blynk
-  Blynk.config(blynk_token);
-
-  // setup service
-  service->setupMqtt(mqtt);
   service->setup();
 }
 
 void loop()
 {
-  checkConnection();
+  BlynkEdgent.run();
+  if (!Blynk.connected())
+  {
+    return;
+  }
 
-  Blynk.run();
-  mqtt->loop();
+  cloudIoT.run();
   delay(10);  // <- fixes some issues with WiFi stability
 
   uint32_t now = millis();
@@ -43,12 +44,12 @@ void loop()
     service->readSensors();
     service->sendBlynk();
 
-    if (now - lastGcpMsg < GCP_INTERVAL)
+    if (!cloudIoT.connected() || now - lastGcpMsg < GCP_INTERVAL)
     {
       return;
     }
 
     lastGcpMsg = now;
-    service->sendGCP();
+    service->sendGCP(cloudIoT.mqtt);
   }
 }

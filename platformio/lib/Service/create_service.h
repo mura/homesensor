@@ -10,12 +10,13 @@
 #endif
 
 // 機能に応じたServiceを返す
-Service *create_service(BlynkProtocol<BlynkArduinoClient> *blynk)
+template <class T>
+Service<T> *create_service(BlynkProtocol<T> *blynk)
 {
 #ifdef USE_LIVING
-  return new LivingService(blynk);
+  return new LivingService<T>(blynk);
 #elif USE_ROOM
-  return new RoomService(blynk);
+  return new RoomService<T>(blynk);
 #endif
 }
 

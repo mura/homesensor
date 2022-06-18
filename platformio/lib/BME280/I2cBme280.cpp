@@ -30,6 +30,8 @@ I2cBme280::~I2cBme280()
 
 int8_t I2cBme280::init()
 {
+  Wire.begin();
+  
   int8_t rslt = BME280_OK;
   rslt = bme280_init(&dev);
   if (rslt != BME280_OK)

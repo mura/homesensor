@@ -6,13 +6,13 @@ import {BigQuery} from "@google-cloud/bigquery";
 const bigquery = new BigQuery();
 
 export const insertBigQuery = functions.pubsub.topic("sensors")
-    .onPublish((message, context) => {
+    .onPublish(async (message, context) => {
       const json = Buffer.from(message.data, "base64").toString();
       // console.log(json);
       if (json.match(/-connected$/)) {
         return;
       }
-      const deviceId = message.attributes.deviceId;
+      const deviceId: string = message.attributes.deviceId;
       const payload = JSON.parse(json);
       // console.log(`${deviceId} Payload: ${JSON.stringfy(payload)}`);
       // console.log(context);
@@ -26,10 +26,11 @@ export const insertBigQuery = functions.pubsub.topic("sensors")
           pressure: payload.p,
           time: context.timestamp,
         };
-        return bigquery
+        await bigquery
             .dataset("sensors")
             .table("atmosphere")
             .insert(row);
+        return 1;
         // console.log('Inserted: ' + row);
       }
       return 0;

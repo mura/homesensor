@@ -4,11 +4,9 @@
 #include <device_config.h>
 #include <Arduino.h>
 #include <BlynkEdgent.h>
-#include <CloudIoT.h>
 #include <create_service.h>
 
 const uint32_t BLYNK_INTERVAL = 10000;
-const uint32_t GCP_INTERVAL = 60000;
 
 uint32_t lastMsg = 0;
 uint32_t lastGcpMsg = 0;
@@ -33,7 +31,6 @@ void loop()
     return;
   }
 
-  cloudIoT.run();
   delay(10);  // <- fixes some issues with WiFi stability
 
   uint32_t now = millis();
@@ -43,13 +40,5 @@ void loop()
 
     service->readSensors();
     service->sendBlynk();
-
-    if (!cloudIoT.connected() || now - lastGcpMsg < GCP_INTERVAL)
-    {
-      return;
-    }
-
-    lastGcpMsg = now;
-    service->sendGCP(cloudIoT.mqtt);
   }
 }

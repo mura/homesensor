@@ -2,7 +2,6 @@
 #define __SERVICE_H__
 
 #include <Blynk/BlynkProtocol.h>
-#include <CloudIoTCoreMqtt.h>
 
 // サービスインタフェース
 template <class T>
@@ -15,8 +14,6 @@ public:
   virtual void readSensors();
   // Blynkに送信する処理
   virtual void sendBlynk();
-  // GCPに送信する処理
-  virtual void sendGCP(CloudIoTCoreMqtt *mqtt);
 
 protected:
   BlynkProtocol<T> *blynk;

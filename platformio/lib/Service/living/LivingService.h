@@ -62,21 +62,6 @@ public:
       this->blynk->virtualWrite(V3, bme280->getPressure() / 100.0);
     }
   }
-  
-  void sendGCP(CloudIoTCoreMqtt *mqtt)
-  {
-    if (!co2Ready || bme280Result != BME280_OK) {
-      return;
-    }
-    
-    String payload = String("{\"c\":") + String(co2) +
-                    String(",\"t\":") + String(bme280->getTemperature()) +
-                    String(",\"h\":") + String(bme280->getHumidity()) +
-                    String(",\"p\":") + String(bme280->getPressure() / 100.0) +
-                    String("}");
-    //Serial.printf("Payload: %s\n", payload.c_str());
-    mqtt->publishTelemetry(payload.c_str(), payload.length());
-  }
 };
 
 #endif // USE_LIVING

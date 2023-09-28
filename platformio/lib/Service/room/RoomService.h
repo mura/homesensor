@@ -64,20 +64,6 @@ public:
     this->blynk->virtualWrite(H_PIN, humidity);
     this->blynk->virtualWrite(HI_PIN, heatIndex);
   }
-
-  void sendGCP(CloudIoTCoreMqtt *mqtt)
-  {
-    if (isnan(humidity) || isnan(temperature))
-    {
-      return;
-    }
-
-    String payload = String("{\"t\":") + String(temperature) +
-                    String(",\"h\":") + String(humidity) +
-                    String("}");
-    //Serial.printf("Payload: %s\n", payload.c_str());
-    mqtt->publishTelemetry(payload);
-  }
 };
 
 #endif // USE_ROOM
